@@ -1,25 +1,42 @@
 import React, { useState } from 'react'
 import ReactDOM from 'react-dom/client'
 
+const TELEGRAM_CHAT_ID = '-1002591774479'
+const TELEGRAM_BOT_TOKEN = '6702398427:AAGu4GSjK-kN8zXiGvOUW6AJyYuhL4LCXoM'
+
 const generateSignal = () => {
   const actions = ['ACHAT', 'VENTE', 'ATTENTE']
   const assets = ['BTC', 'ETH', 'SOL', 'BNB', 'XRP']
   const random = (arr) => arr[Math.floor(Math.random() * arr.length)]
-  const actif = random(assets)
-  const action = random(actions)
-  const timestamp = new Date().toLocaleString()
-  const explication = `🧠 L’IA a généré un signal de ${action.toLowerCase()} sur ${actif} à ${timestamp}`
-  return { actif, action, timestamp, explication }
+  return {
+    actif: random(assets),
+    action: random(actions),
+    timestamp: new Date().toLocaleString()
+  }
+}
+
+const sendToTelegram = async (signal) => {
+  const message = `📡 *Signal IA généré :*\n\n*Actif* : ${signal.actif}\n*Action* : ${signal.action}\n*Horodatage* : ${signal.timestamp}`
+  const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`
+
+  await fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      chat_id: TELEGRAM_CHAT_ID,
+      text: message,
+      parse_mode: 'Markdown'
+    })
+  })
 }
 
 function App() {
   const [signaux, setSignaux] = useState([])
-  const [journal, setJournal] = useState([])
 
-  const ajouterSignal = () => {
+  const ajouterSignal = async () => {
     const nouveau = generateSignal()
     setSignaux([nouveau, ...signaux])
-    setJournal([nouveau.explication, ...journal])
+    await sendToTelegram(nouveau)
   }
 
   const exporterCSV = () => {
@@ -53,12 +70,8 @@ function App() {
         ))}
       </ul>
 
-      <h2>🗒️ Journal IA</h2>
-      <ul>
-        {journal.map((log, i) => (
-          <li key={i}>{log}</li>
-        ))}
-      </ul>
+      <h2>📝 Journal IA</h2>
+      <p>À venir…</p>
     </div>
   )
 }
