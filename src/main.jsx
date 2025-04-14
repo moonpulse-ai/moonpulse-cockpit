@@ -8,15 +8,8 @@ const generateSignal = () => {
   const actif = random(assets)
   const action = random(actions)
   const timestamp = new Date().toLocaleString()
-
-  const explication = `L'IA a détecté une opportunité de ${action.toLowerCase()} sur ${actif} à ${timestamp}`
-
-  return {
-    actif,
-    action,
-    timestamp,
-    explication
-  }
+  const explication = `🧠 L’IA a généré un signal de ${action.toLowerCase()} sur ${actif} à ${timestamp}`
+  return { actif, action, timestamp, explication }
 }
 
 function App() {
@@ -60,10 +53,10 @@ function App() {
         ))}
       </ul>
 
-      <h2>📝 Journal IA</h2>
+      <h2>🗒️ Journal IA</h2>
       <ul>
-        {journal.map((entry, i) => (
-          <li key={i}>{entry}</li>
+        {journal.map((log, i) => (
+          <li key={i}>{log}</li>
         ))}
       </ul>
     </div>
