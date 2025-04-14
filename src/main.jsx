@@ -5,19 +5,28 @@ const generateSignal = () => {
   const actions = ['ACHAT', 'VENTE', 'ATTENTE']
   const assets = ['BTC', 'ETH', 'SOL', 'BNB', 'XRP']
   const random = (arr) => arr[Math.floor(Math.random() * arr.length)]
+  const actif = random(assets)
+  const action = random(actions)
+  const timestamp = new Date().toLocaleString()
+
+  const explication = `L'IA a détecté une opportunité de ${action.toLowerCase()} sur ${actif} à ${timestamp}`
+
   return {
-    actif: random(assets),
-    action: random(actions),
-    timestamp: new Date().toLocaleString()
+    actif,
+    action,
+    timestamp,
+    explication
   }
 }
 
 function App() {
   const [signaux, setSignaux] = useState([])
+  const [journal, setJournal] = useState([])
 
   const ajouterSignal = () => {
     const nouveau = generateSignal()
     setSignaux([nouveau, ...signaux])
+    setJournal([nouveau.explication, ...journal])
   }
 
   const exporterCSV = () => {
@@ -52,7 +61,11 @@ function App() {
       </ul>
 
       <h2>📝 Journal IA</h2>
-      <p>À venir…</p>
+      <ul>
+        {journal.map((entry, i) => (
+          <li key={i}>{entry}</li>
+        ))}
+      </ul>
     </div>
   )
 }
