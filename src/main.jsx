@@ -1,9 +1,6 @@
 import React, { useState } from 'react'
 import ReactDOM from 'react-dom/client'
 
-const TELEGRAM_CHAT_ID = '-1002591774479'
-const TELEGRAM_BOT_TOKEN = '6702398427:AAGu4GSjK-kN8zXiGvOUW6AJyYuhL4LCXoM'
-
 const generateSignal = () => {
   const actions = ['ACHAT', 'VENTE', 'ATTENTE']
   const assets = ['BTC', 'ETH', 'SOL', 'BNB', 'XRP']
@@ -16,18 +13,15 @@ const generateSignal = () => {
 }
 
 const sendToTelegram = async (signal) => {
-  const message = `📡 *Signal IA généré :*\n\n*Actif* : ${signal.actif}\n*Action* : ${signal.action}\n*Horodatage* : ${signal.timestamp}`
-  const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`
-
-  await fetch(url, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      chat_id: TELEGRAM_CHAT_ID,
-      text: message,
-      parse_mode: 'Markdown'
+  try {
+    await fetch('/api/send-telegram', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(signal)
     })
-  })
+  } catch (err) {
+    console.error('Erreur envoi Telegram :', err)
+  }
 }
 
 function App() {
