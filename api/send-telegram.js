@@ -1,19 +1,21 @@
 export default async function handler(req, res) {
-  console.log("✅ Requête reçue par /api/send-telegram");
+  console.log("📡 Requête reçue dans /api/send-telegram");
 
   if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Méthode non autorisée' })
+    return res.status(405).json({ error: 'Méthode non autorisée' });
   }
 
-  const { actif, action, timestamp } = req.body
+  const TELEGRAM_CHAT_ID = '-1002591774479'; // Groupe MoonPulse Dev
+  const TELEGRAM_BOT_TOKEN = '8125665096:AAGbFcdIbipcYXZLyYoLEus0oVZjtMbbvtY';
 
-  const message = `📡 *Signal IA généré :*\n\n*Actif* : ${actif}\n*Action* : ${action}\n*Horodatage* : ${timestamp}`
+  const signal = req.body;
 
-  const TELEGRAM_CHAT_ID = '-1002591774479'
-  const TELEGRAM_BOT_TOKEN = '6702398427:AAGu4GSjK-kN8zXiGv0uW6AJyYuhL4LCx0M'
+  const message = `📡 *Signal IA généré :*\n\n*Actif* : ${signal.actif}\n*Action* : ${signal.action}\n*Horodatage* : ${signal.timestamp}`;
+
+  const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`;
 
   try {
-    const response = await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
+    const telegramRes = await fetch(url, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -21,17 +23,19 @@ export default async function handler(req, res) {
         text: message,
         parse_mode: 'Markdown'
       })
-    })
+    });
 
-    const data = await response.json()
-
-    if (!response.ok) {
-      throw new Error(data.description || 'Erreur lors de l’envoi du message')
+    if (!telegramRes.ok) {
+      const err = await telegramRes.text();
+      console.error('❌ Erreur Telegram:', err);
+      return res.status(500).json({ error: 'Erreur Telegram', details: err });
     }
 
-    res.status(200).json({ success: true })
-  } catch (error) {
-    console.error('Erreur Telegram:', error)
-    res.status(500).json({ error: 'Erreur interne serveur' })
+    const data = await telegramRes.json();
+    console.log('✅ Message envoyé avec succès à Telegram:', data);
+    return res.status(200).json({ success: true });
+  } catch (err) {
+    console.error('❌ Erreur Telegram:', err);
+    return res.status(500).json({ error: 'Erreur Telegram', details: err });
   }
 }
