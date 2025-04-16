@@ -18,6 +18,7 @@ function App() {
   const [niveauRisque, setNiveauRisque] = useState(3)
   const [actifs, setActifs] = useState(['BTC', 'ETH', 'SOL'])
   const [modeAuto, setModeAuto] = useState(false)
+  const [alerteStop, setAlerteStop] = useState(false)
 
   const tousActifs = ['BTC', 'ETH', 'SOL', 'BNB', 'XRP']
   const intervalRef = useRef(null)
@@ -35,6 +36,7 @@ function App() {
       if (updated.length >= 20 && modeAuto) {
         console.log('🛑 Limite de signaux atteinte — arrêt automatique.')
         setModeAuto(false)
+        setAlerteStop(true)
       }
       return updated
     })
@@ -63,6 +65,13 @@ function App() {
     return () => clearInterval(intervalRef.current)
   }, [modeAuto, actifs, niveauRisque])
 
+  const badgeStyle = (confiance) => {
+    const score = parseFloat(confiance)
+    if (score > 80) return { color: '#2ecc71' } // Vert
+    if (score > 70) return { color: '#f39c12' } // Orange
+    return { color: '#e74c3c' } // Rouge
+  }
+
   return (
     <div style={{ display: 'flex', minHeight: '100vh', backgroundColor: '#111', color: '#f0f0f0', fontFamily: 'Segoe UI' }}>
       
@@ -79,13 +88,26 @@ function App() {
           <button onClick={exporterCSV} style={{ ...buttonStyle, backgroundColor: '#333' }}>📁 Exporter CSV</button>
         </section>
 
+        {alerteStop && (
+          <div style={{
+            backgroundColor: '#222',
+            padding: '1rem',
+            border: '1px solid #c0392b',
+            borderRadius: '8px',
+            marginBottom: '1.5rem',
+            color: '#e74c3c'
+          }}>
+            🚨 Limite atteinte : l’IA automatique a été stoppée pour éviter la surcharge.
+          </div>
+        )}
+
         <section>
           <h2 style={sectionTitle}>📊 Signaux IA simulés</h2>
           <div style={{ display: 'grid', gap: '1rem' }}>
             {signaux.map((sig, i) => (
               <div key={i} style={cardStyle}>
                 <strong>{sig.actif}</strong> — {sig.action}<br />
-                <span style={{ color: '#1abc9c' }}>Confiance IA : {sig.confiance}%</span><br />
+                <span style={badgeStyle(sig.confiance)}>Confiance IA : {sig.confiance}%</span><br />
                 <small style={{ color: '#888' }}>{sig.timestamp}</small>
               </div>
             ))}
@@ -120,7 +142,14 @@ function App() {
 
         <div>
           <label>
-            <input type="checkbox" checked={modeAuto} onChange={() => setModeAuto(!modeAuto)} /> 🔄 Mode automatique
+            <input
+              type="checkbox"
+              checked={modeAuto}
+              onChange={() => {
+                setModeAuto(!modeAuto)
+                setAlerteStop(false)
+              }}
+            /> 🔄 Mode automatique
           </label>
         </div>
       </div>
