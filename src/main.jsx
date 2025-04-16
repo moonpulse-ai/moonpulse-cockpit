@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import ReactDOM from 'react-dom/client'
 
 function generateSignal(actifs, risque) {
@@ -8,7 +8,7 @@ function generateSignal(actifs, risque) {
   return {
     actif,
     action: random(actions),
-    confiance: (risque * 10 + Math.random() * 40).toFixed(2), // basé sur le risque
+    confiance: (risque * 10 + Math.random() * 40).toFixed(2),
     timestamp: new Date().toLocaleString()
   }
 }
@@ -20,18 +20,17 @@ function App() {
   const [modeAuto, setModeAuto] = useState(false)
 
   const tousActifs = ['BTC', 'ETH', 'SOL', 'BNB', 'XRP']
+  const intervalRef = useRef(null)
 
   const toggleActif = (actif) => {
     setActifs(prev =>
-      prev.includes(actif)
-        ? prev.filter(a => a !== actif)
-        : [...prev, actif]
+      prev.includes(actif) ? prev.filter(a => a !== actif) : [...prev, actif]
     )
   }
 
   const ajouterSignal = () => {
     const nouveau = generateSignal(actifs, niveauRisque)
-    setSignaux([nouveau, ...signaux])
+    setSignaux(prev => [nouveau, ...prev])
   }
 
   const exporterCSV = () => {
@@ -46,10 +45,20 @@ function App() {
     lien.click()
   }
 
+  useEffect(() => {
+    if (modeAuto) {
+      intervalRef.current = setInterval(() => {
+        ajouterSignal()
+      }, 10000) // toutes les 10 secondes pour test
+    } else {
+      clearInterval(intervalRef.current)
+    }
+    return () => clearInterval(intervalRef.current)
+  }, [modeAuto, actifs, niveauRisque])
+
   return (
     <div style={{ display: 'flex', minHeight: '100vh', backgroundColor: '#111', color: '#f0f0f0', fontFamily: 'Segoe UI' }}>
       
-      {/* Contenu principal */}
       <div style={{ flex: 1, padding: '2rem' }}>
         <header style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '2rem' }}>
           <h1>🌙 MoonPulse Cockpit</h1>
@@ -77,7 +86,6 @@ function App() {
         </section>
       </div>
 
-      {/* Sidebar paramètres */}
       <div style={{ width: '300px', backgroundColor: '#1b1b1b', padding: '2rem', borderLeft: '1px solid #333' }}>
         <h2 style={{ marginBottom: '1rem' }}>⚙️ Paramètres IA</h2>
 
