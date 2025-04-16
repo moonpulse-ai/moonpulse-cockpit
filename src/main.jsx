@@ -23,6 +23,19 @@ function App() {
   const tousActifs = ['BTC', 'ETH', 'SOL', 'BNB', 'XRP']
   const intervalRef = useRef(null)
 
+  // Charger les signaux au démarrage depuis localStorage
+  useEffect(() => {
+    const data = localStorage.getItem('moonpulse_signaux')
+    if (data) {
+      setSignaux(JSON.parse(data))
+    }
+  }, [])
+
+  // Sauvegarder les signaux à chaque modification
+  useEffect(() => {
+    localStorage.setItem('moonpulse_signaux', JSON.stringify(signaux))
+  }, [signaux])
+
   const toggleActif = (actif) => {
     setActifs(prev =>
       prev.includes(actif) ? prev.filter(a => a !== actif) : [...prev, actif]
@@ -67,9 +80,9 @@ function App() {
 
   const badgeStyle = (confiance) => {
     const score = parseFloat(confiance)
-    if (score > 80) return { color: '#2ecc71' } // Vert
-    if (score > 70) return { color: '#f39c12' } // Orange
-    return { color: '#e74c3c' } // Rouge
+    if (score > 80) return { color: '#2ecc71' }
+    if (score > 70) return { color: '#f39c12' }
+    return { color: '#e74c3c' }
   }
 
   return (
@@ -175,10 +188,4 @@ const sectionTitle = {
 }
 
 const cardStyle = {
-  backgroundColor: '#1c1c1c',
-  padding: '1rem',
-  borderRadius: '8px',
-  border: '1px solid #333'
-}
-
-ReactDOM.createRoot(document.getElementById('root')).render(<App />)
+  backgroundColor: '#1c1c1
