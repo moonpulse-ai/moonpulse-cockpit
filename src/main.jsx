@@ -30,7 +30,14 @@ function App() {
 
   const ajouterSignal = () => {
     const nouveau = generateSignal(actifs, niveauRisque)
-    setSignaux(prev => [nouveau, ...prev])
+    setSignaux(prev => {
+      const updated = [nouveau, ...prev]
+      if (updated.length >= 20 && modeAuto) {
+        console.log('🛑 Limite de signaux atteinte — arrêt automatique.')
+        setModeAuto(false)
+      }
+      return updated
+    })
   }
 
   const exporterCSV = () => {
@@ -49,7 +56,7 @@ function App() {
     if (modeAuto) {
       intervalRef.current = setInterval(() => {
         ajouterSignal()
-      }, 10000) // toutes les 10 secondes pour test
+      }, 10000)
     } else {
       clearInterval(intervalRef.current)
     }
