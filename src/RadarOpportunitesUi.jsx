@@ -1,7 +1,6 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { useState, useEffect } from "react";
 
 const TG_TOKEN = "7867931896:AAGXjAAG5NbuLIK3AaCvIwnh15KiTaY0j_I";
@@ -91,22 +90,18 @@ function SignauxIA() {
 }
 
 export default function MoonPulseTabs() {
+  const [onglet, setOnglet] = useState("signals");
+
   return (
     <div className="p-6">
       <h1 className="text-3xl font-bold mb-6">🌙 MoonPulse Cockpit</h1>
-      <Tabs defaultValue="signals">
-        <TabsList>
-          <TabsTrigger value="signals">📈 Signaux IA</TabsTrigger>
-          <TabsTrigger value="radar">🌐 Radar Opportunités</TabsTrigger>
-        </TabsList>
+      <div className="flex gap-4 mb-4">
+        <Button onClick={() => setOnglet("signals")} variant={onglet === "signals" ? "default" : "outline"}>📈 Signaux IA</Button>
+        <Button onClick={() => setOnglet("radar")} variant={onglet === "radar" ? "default" : "outline"}>🌐 Radar Opportunités</Button>
+      </div>
 
-        <TabsContent value="signals">
-          <SignauxIA />
-        </TabsContent>
-        <TabsContent value="radar">
-          <RadarOpportunites />
-        </TabsContent>
-      </Tabs>
+      {onglet === "signals" && <SignauxIA />}
+      {onglet === "radar" && <RadarOpportunites />}
     </div>
   );
 }
